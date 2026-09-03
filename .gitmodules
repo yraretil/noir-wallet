@@ -1,3 +1,6 @@
 [submodule "product-paper"]
 	path = product-paper
 	url = https://github.com/yraretil/noir-paper
+[submodule "leddger-next-paper"]
+	path = leddger-next-paper
+	url = https://github.com/yraretil/noir-paper
