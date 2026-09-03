@@ -12,6 +12,12 @@
 #define BOARD_TUD_RHPORT      0
 #define BOARD_TUD_MAX_SPEED   OPT_MODE_DEFAULT_SPEED
 
+/* Device-mode root hub port. REQUIRED — tusb_option.h only defines
+ * TUD_OPT_RHPORT (and thus calls tud_init()) when one of these is set with
+ * the OPT_MODE_DEVICE bit. Without it, tusb_init() silently no-ops the whole
+ * device stack. */
+#define CFG_TUSB_RHPORT0_MODE (OPT_MODE_DEVICE | BOARD_TUD_MAX_SPEED)
+
 /* ---- MCU / OS --------------------------------------------------- */
 #define CFG_TUSB_MCU          OPT_MCU_STM32F4
 #define CFG_TUSB_OS           OPT_OS_NONE

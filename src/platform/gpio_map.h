@@ -18,11 +18,11 @@ extern I2C_HandleTypeDef hi2c1;   /* owned by drivers/ssd1306.c */
 #define OLED_I2C_AF          GPIO_AF4_I2C1
 
 /* ---- Buttons (all active-low, pressed == GPIO_PIN_RESET) -- */
-/* Verified wiring:
- *     PA7  = LEFT   ("A7")
+/* Rewired 2026-08-29:
+ *     PB10 = UP     ("B10")
+ *     PA6  = LEFT   ("A6")
  *     PB0  = RIGHT  ("B0")
- *     PA6  = UP     ("A6")    (PB2 is BOOT1 and reads LOW — unusable)
- *     PB10 = DOWN   ("B10")
+ *     PA7  = DOWN   ("A7")
  *     PB1  = CENTER ("B1")
  */
 typedef struct {
@@ -40,10 +40,10 @@ typedef enum {
 } btn_id_t;
 
 static const btn_map_t BTN_MAP[BTN_COUNT] = {
-    [BTN_LEFT]   = { GPIOA, GPIO_PIN_7  },  /* PA7  = LEFT            */
+    [BTN_LEFT]   = { GPIOA, GPIO_PIN_6  },  /* PA6  = LEFT            */
     [BTN_RIGHT]  = { GPIOB, GPIO_PIN_0  },  /* PB0  = RIGHT           */
-    [BTN_UP]     = { GPIOA, GPIO_PIN_6  },  /* PA6  = UP              */
-    [BTN_DOWN]   = { GPIOB, GPIO_PIN_10 },  /* PB10 = DOWN            */
+    [BTN_UP]     = { GPIOB, GPIO_PIN_10 },  /* PB10 = UP              */
+    [BTN_DOWN]   = { GPIOA, GPIO_PIN_7  },  /* PA7  = DOWN            */
     [BTN_CENTER] = { GPIOB, GPIO_PIN_1  },  /* PB1  = CENTER          */
 };
 
@@ -58,10 +58,10 @@ static const char BTN_LABELS[BTN_COUNT] = {
 
 /* Physical pin name for the on-screen diagnostic. */
 static const char * const BTN_NAMES[BTN_COUNT] = {
-    [BTN_LEFT]   = "A7",
+    [BTN_LEFT]   = "A6",
     [BTN_RIGHT]  = "B0",
-    [BTN_UP]     = "A6",
-    [BTN_DOWN]   = "B10",
+    [BTN_UP]     = "B10",
+    [BTN_DOWN]   = "A7",
     [BTN_CENTER] = "B1",
 };
 

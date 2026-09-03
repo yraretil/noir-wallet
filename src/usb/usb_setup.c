@@ -9,6 +9,7 @@
 #include "stm32f4xx_hal.h"
 #include "tusb.h"
 #include "usb_setup.h"
+#include "hid_app.h"
 
 /* Route the OTG FS interrupt to TinyUSB's DWC2 handler (rhport 0 = OTG_FS).
  * Also count interrupts so the splash can show whether the host is talking. */
@@ -36,11 +37,21 @@ void usb_init(void) {
 
     tusb_init();
 
-    /* The BlackPill does not route VBUS to the OTG_FS VBUS pad (PA9), so the
-     * VBUS-sense comparator reads "absent" and the device never pulls D+ up
-     * even with soft-disconnect cleared. Override VBUS sensing so the device
-     * assumes VBUS is always present (standard fix for boards with no VBUS
-     * sense trace). Must run AFTER tusb_init(): TinyUSB's core soft-reset
-     * re-clears the STM32 GCCFG extension bits during its FS-PHY init. */
-    USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
+    /* Two STM32F4 bring-up fixes TinyUSB 0.17 doesn't do for the FS PHY:
+     * 1. PWRDWN (GCCFG bit 16) — "Activate the USB Transceiver". The HAL's
+     *    USB_CoreInit sets this AFTER the core soft reset; TinyUSB sets it
+     *    BEFORE (in dwc2_phy_init) so reset_core() wipes it and the FS
+     *    transceiver stays off -> D+ never pulls up (observed as pw0/irq0).
+     * 2. NOVBUSSENS (bit 21) — the BlackPill doesn't route VBUS to PA9, so
+     *    override VBUS sensing (device assumes VBUS always present). */
+    USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_PWRDWN | USB_OTG_GCCFG_NOVBUSSENS;
+
+    /* Clear ALL PHY power/clock gating (matches the HAL's `PCGCCTL = 0` in
+     * USB_DevInit). TinyUSB only clears STOPCLK/GATECLK after the core reset;
+     * PHYSUSP (bit 4) survives and keeps the PHY suspended so D+ never drives
+     * high — observed as all-connect-bits-ok but zero interrupts. */
+    *(volatile uint32_t *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_PCGCCTL_BASE) = 0;
+
+    /* Register APDU handlers and boot LOCKED. */
+    hid_app_init();
 }

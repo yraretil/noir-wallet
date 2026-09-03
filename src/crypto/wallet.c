@@ -50,6 +50,8 @@ int wallet_sign(const uint8_t priv[32], const uint8_t hash32[32],
                 uint8_t sig[64], uint8_t *recid) {
     uint8_t v = 0;
     if (ecdsa_sign_digest(&secp256k1, priv, hash32, sig, &v, 0) != 0) return -1;
-    if (recid) *recid = v;
+    /* trezor's `by` may set bit1 (R.x >= order); Ethereum recovery id is the
+     * y-parity bit only. */
+    if (recid) *recid = v & 1;
     return 0;
 }
